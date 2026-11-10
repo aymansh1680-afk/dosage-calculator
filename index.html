@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة الجرعات الدوائية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal-50: #f0fdfa;
+      --teal-100: #ccfbf1;
+      --teal-500: #14b8a6;
+      --teal-600: #0d9488;
+      --teal-700: #0f766e;
+      --teal-800: #115e59;
+      --teal-900: #134e4a;
+      --muted: #5b7c78;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Tajawal', system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, #ffffff 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, #a7f3d0 0%, transparent 45%),
+        linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+      color: var(--teal-900);
+      min-height: 100vh;
+      padding: 32px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container { width: 100%; max-width: 560px; }
+
+    header { text-align: center; margin-bottom: 28px; }
+
+    .logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px -8px rgba(13, 148, 136, 0.5);
+      margin-bottom: 16px;
+      transform: rotate(-8deg);
+    }
+
+    .logo svg { width: 34px; height: 34px; fill: white; }
+
+    header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    header p { color: var(--muted); font-size: 1rem; font-weight: 500; }
+
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 24px 60px -20px rgba(15, 118, 110, 0.35);
+      border: 1px solid rgba(204, 251, 241, 0.8);
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--teal-800);
+    }
+
+    .input-row { display: flex; gap: 8px; align-items: stretch; }
+
+    .input-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px 16px;
+      border: 2px solid var(--teal-100);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--teal-900);
+      background: var(--teal-50);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .input-row input::placeholder { color: #a3c4c0; font-weight: 400; }
+    .input-row input:focus {
+      border-color: var(--teal-500);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15);
+    }
+
+    select {
+      padding: 13px 12px;
+      border: 2px solid var(--teal-100);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--teal-800);
+      background: var(--teal-50);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    select:focus { border-color: var(--teal-500); background: white; }
+
+    .unit-tag {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: var(--teal-100);
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--teal-800);
+      white-space: nowrap;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 8px;
+      background: var(--teal-50);
+      padding: 6px;
+      border-radius: 16px;
+      border: 2px solid var(--teal-100);
+    }
+
+    .radio-pill { flex: 1; position: relative; cursor: pointer; }
+    .radio-pill input { position: absolute; opacity: 0; pointer-events: none; }
+
+    .radio-pill span {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 11px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .radio-pill input:checked + span {
+      background: white;
+      color: var(--teal-700);
+      box-shadow: 0 4px 12px -4px rgba(15, 118, 110, 0.3);
+    }
+
+    .radio-pill input:focus-visible + span { box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.3); }
+
+    .results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px dashed var(--teal-100);
+    }
+
+    .result-card {
+      background: var(--teal-50);
+      border: 1px solid var(--teal-100);
+      border-radius: 16px;
+      padding: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .result-card.primary {
+      background: linear-gradient(135deg, var(--teal-600), var(--teal-800));
+      border: none;
+      color: white;
+      box-shadow: 0 12px 30px -10px rgba(13, 148, 136, 0.6);
+    }
+
+    .result-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .result-card.primary .result-label { color: rgba(255, 255, 255, 0.85); }
+
+    .result-value {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--teal-800);
+      letter-spacing: -0.5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-card.primary .result-value { color: white; }
+    .result-value small { font-size: 0.7em; font-weight: 700; opacity: 0.75; }
+
+    .hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .hint strong { color: var(--teal-700); }
+
+    @media (max-width: 400px) {
+      .results { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2v6h6a2 2 0 0 1 0 4h-6v6a2 2 0 0 1-4 0v-6H4a2 2 0 0 1 0-4h6V4a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <h1>حاسبة الجرعات الدوائية</h1>
+      <p>أداة تعليمية مبسطة لطلاب الصيدلة</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label class="field-label" for="weight">وزن المريض</label>
+        <div class="input-row">
+          <input type="number" id="weight" placeholder="مثال: 70" min="0" step="any" inputmode="decimal">
+          <span class="unit-tag">كجم</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="dose">الجرعة الموصى بها</label>
+        <div class="input-row">
+          <input type="number" id="dose" placeholder="مثال: 10" min="0" step="any" inputmode="decimal">
+          <select id="doseUnit">
+            <option value="mg">مجم/كجم</option>
+            <option value="mcg">ميكروجرام/كجم</option>
+            <option value="g">جم/كجم</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">نوع الجرعة</label>
+        <div class="radio-group">
+          <label class="radio-pill">
+            <input type="radio" name="doseType" value="perDose" checked>
+            <span>لكل جرعة</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="doseType" value="perDay">
+            <span>لكل يوم</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="frequency">عدد الجرعات في اليوم</label>
+        <div class="input-row">
+          <input type="number" id="frequency" value="3" min="1" max="12" step="1" inputmode="numeric">
+          <span class="unit-tag">مرة/يوم</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom: 0;">
+        <label class="field-label" for="concentration">تركيز الدواء (اختياري)</label>
+        <div class="input-row">
+          <input type="number" id="concentration" placeholder="مثال: 250" min="0" step="any" inputmode="decimal">
+          <select id="concUnit">
+            <option value="mg_mL">مجم/مل</option>
+            <option value="mcg_mL">ميكروجرام/مل</option>
+            <option value="g_mL">جم/مل</option>
+            <option value="mg_5mL">مجم/5مل</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-card primary">
+          <span class="result-label">الجرعة لكل مرة</span>
+          <span class="result-value" id="resDosePerTime">—</span>
+        </div>
+        <div class="result-card">
+          <span class="result-label">الجرعة اليومية</span>
+          <span class="result-value" id="resDaily">—</span>
+        </div>
+        <div class="result-card">
+          <span class="result-label">الحجم لكل مرة</span>
+          <span class="result-value" id="resVolumePerTime">—</span>
+        </div>
+        <div class="result-card">
+          <span class="result-label">الحجم اليومي</span>
+          <span class="result-value" id="resVolumeDaily">—</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">
+      <strong>تنبيه:</strong> هذه الأداة تعليمية فقط ولا تغني عن المراجع الدوائية أو إشراف الصيدلي المختص.
+    </p>
+  </div>
+
+  <script>
+    const weightEl = document.getElementById('weight');
+    const doseEl = document.getElementById('dose');
+    const doseUnitEl = document.getElementById('doseUnit');
+    const freqEl = document.getElementById('frequency');
+    const concEl = document.getElementById('concentration');
+    const concUnitEl = document.getElementById('concUnit');
+    const doseTypeEls = document.querySelectorAll('input[name="doseType"]');
+
+    const resDosePerTime = document.getElementById('resDosePerTime');
+    const resDaily = document.getElementById('resDaily');
+    const resVolumePerTime = document.getElementById('resVolumePerTime');
+    const resVolumeDaily = document.getElementById('resVolumeDaily');
+
+    const doseToMg = { mg: 1, mcg: 0.001, g: 1000 };
+    const doseLabel = { mg: 'مجم', mcg: 'ميكروجرام', g: 'جم' };
+    const concToMgPerMl = { mg_mL: 1, mcg_mL: 0.001, g_mL: 1000, mg_5mL: 0.2 };
+
+    function format(num) {
+      if (!isFinite(num)) return '—';
+      return (Math.round(num * 100) / 100).toString();
+    }
+
+    function getDoseType() {
+      for (const el of doseTypeEls) if (el.checked) return el.value;
+      return 'perDose';
+    }
+
+    function calc() {
+      const weight = parseFloat(weightEl.value);
+      const dose = parseFloat(doseEl.value);
+      const freq = parseInt(freqEl.value, 10);
+      const conc = parseFloat(concEl.value);
+      const doseUnit = doseUnitEl.value;
+      const concUnit = concUnitEl.value;
+      const type = getDoseType();
+
+      if (!weight || !dose || weight <= 0 || dose <= 0) {
+        resDosePerTime.innerHTML = '—';
+        resDaily.innerHTML = '—';
+        resVolumePerTime.innerHTML = '—';
+        resVolumeDaily.innerHTML = '—';
+        return;
+      }
+
+      const f = (freq && freq > 0) ? freq : 1;
+      const unitLbl = doseLabel[doseUnit];
+      const mult = doseToMg[doseUnit];
+
+      let dosePerTime, dailyDose;
+      if (type === 'perDose') {
+        dosePerTime = weight * dose;
+        dailyDose = dosePerTime * f;
+      } else {
+        dailyDose = weight * dose;
+        dosePerTime = dailyDose / f;
+      }
+
+      resDosePerTime.innerHTML = format(dosePerTime) + ' <small>' + unitLbl + '</small>';
+      resDaily.innerHTML = format(dailyDose) + ' <small>' + unitLbl + '</small>';
+
+      if (conc && conc > 0) {
+        const concMgPerMl = conc * concToMgPerMl[concUnit];
+        resVolumePerTime.innerHTML = format((dosePerTime * mult) / concMgPerMl) + ' <small>مل</small>';
+        resVolumeDaily.innerHTML = format((dailyDose * mult) / concMgPerMl) + ' <small>مل</small>';
+      } else {
+        resVolumePerTime.innerHTML = '—';
+        resVolumeDaily.innerHTML = '—';
+      }
+    }
+
+    [weightEl, doseEl, freqEl, concEl].forEach(el => el.addEventListener('input', calc));
+    [doseUnitEl, concUnitEl].forEach(el => el.addEventListener('change', calc));
+    doseTypeEls.forEach(el => el.addEventListener('change', calc));
+
+    calc();
+  </script>
+</body>
+</html>
